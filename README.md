@@ -1,6 +1,6 @@
-# Analytics Agent
+# Analytics Agent: Text-to-SQL AI Data Analyst with Guardrails
 
-A natural-language data analyst over a SQL database. Ask "which region's revenue fell most last quarter and why?" and it inspects the schema, writes SQL, runs it read-only, checks the results, retries on errors, and answers with a chart, citing the exact queries and numbers behind every claim.
+A text-to-SQL AI agent that works as a natural-language data analyst over a SQL database. Ask "which region's revenue fell most last quarter and why?" and it inspects the schema, writes SQL, runs it read-only, checks the results, retries on errors, and answers with a chart, citing the exact queries and numbers behind every claim.
 
 ![The agent answering the flagship question](docs/ui.png)
 
@@ -131,3 +131,15 @@ Every LLM reply is cached in `.cache/llm/`. Set `LLM_CACHE_ONLY=1` to replay sav
 - **The guard is strict.** `PIVOT`, `VALUES` and table functions such as `generate_series` are refused, so the agent has to rewrite those queries.
 - **Dates are fixed.** The data ends in 2018, so "today" is pinned to 2018-08-31 in `analytics_agent/config.py`. A live database would use the real date.
 - **Unanswerable questions waste calls.** The model spent 6 calls on U01 and U02, mostly on blocked catalog lookups, before declining correctly.
+
+## License
+
+The code is MIT licensed. See [LICENSE](LICENSE). Third-party datasets, papers and models are not covered and keep their own terms.
+
+## Related projects
+
+- [research-paper-rag](https://github.com/arbablatif/research-paper-rag): RAG assistant with page-level citations and refusals
+- [predictive-maintenance-agent](https://github.com/arbablatif/predictive-maintenance-agent): bearing fault diagnosis, RUL prediction and verified tickets
+- [dsp-copilot](https://github.com/arbablatif/dsp-copilot): LLM agent for signal processing on CSV and WAV files
+
+Project page: [https://arbablatif.github.io/projects/analytics-agent/](https://arbablatif.github.io/projects/analytics-agent/). More work at [arbablatif.github.io](https://arbablatif.github.io/).

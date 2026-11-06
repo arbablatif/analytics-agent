@@ -1,0 +1,29 @@
+# Secrets - never commit
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Data and generated artefacts (rebuilt by scripts/build_db.py)
+data/
+*.duckdb
+*.duckdb.wal
+
+# LLM response cache
+.cache/
+
+# Generated reports (samples are kept in results/)
+reports/
+
+# Editor / OS
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Local working notes
+CLAUDE.md

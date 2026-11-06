@@ -1,0 +1,74 @@
+# Worked examples for the "enhanced" prompt condition.
+# tests/test_semantic.py checks that they do not overlap the evaluation questions,
+# so the comparison measures generalisation rather than memorised answers.
+
+examples:
+  - question: What was revenue in the South region in December 2017?
+    sql: |
+      SELECT sum(i.price) AS revenue
+      FROM order_items i
+      JOIN orders o ON o.order_id = i.order_id
+      JOIN customers c ON c.customer_id = o.customer_id
+      JOIN state_regions r ON r.state = c.customer_state
+      WHERE o.order_status NOT IN ('canceled', 'unavailable')
+        AND r.region = 'South'
+        AND o.order_purchase_timestamp >= DATE '2017-12-01'
+        AND o.order_purchase_timestamp <  DATE '2018-01-01'
+    note: Revenue comes from order_items.price and excludes canceled and unavailable orders.
+
+  - question: How much was paid by boleto per order, on average?
+    sql: |
+      WITH per_order AS (
+        SELECT order_id, sum(payment_value) AS paid
+        FROM order_payments
+        WHERE payment_type = 'boleto'
+        GROUP BY order_id
+      )
+      SELECT avg(paid) AS avg_paid_per_order FROM per_order
+    note: Aggregate payments to one row per order before averaging.
+
+  - question: Which three customer cities have the most distinct buyers?
+    sql: |
+      SELECT customer_city, count(DISTINCT customer_unique_id) AS buyers
+      FROM customers
+      GROUP BY customer_city
+      ORDER BY buyers DESC
+      LIMIT 3
+    note: People are counted with customer_unique_id, not customer_id.
+
+  - question: What is the average review score of orders containing a bed_bath_table product?
+    sql: |
+      WITH category_orders AS (
+        SELECT DISTINCT i.order_id
+        FROM order_items i
+        JOIN products p ON p.product_id = i.product_id
+        LEFT JOIN category_translation t ON t.product_category_name = p.product_category_name
+        WHERE t.product_category_name_english = 'bed_bath_table'
+      ),
+      order_scores AS (
+        SELECT order_id, avg(review_score) AS score FROM order_reviews GROUP BY order_id
+      )
+      SELECT avg(s.score) AS avg_review_score
+      FROM category_orders c
+      JOIN order_scores s ON s.order_id = c.order_id
+    note: Reduce both sides to one row per order so that nothing is double counted.
+
+  - question: Why did revenue in Sao Paulo state change between Q4 2017 and Q1 2018?
+    sql: |
+      SELECT date_trunc('quarter', o.order_purchase_timestamp) AS quarter,
+             sum(i.price) AS revenue,
+             count(DISTINCT i.order_id) AS orders,
+             sum(i.price) / count(DISTINCT i.order_id) AS avg_order_value
+      FROM order_items i
+      JOIN orders o ON o.order_id = i.order_id
+      JOIN customers c ON c.customer_id = o.customer_id
+      WHERE o.order_status NOT IN ('canceled', 'unavailable')
+        AND c.customer_state = 'SP'
+        AND o.order_purchase_timestamp >= DATE '2017-10-01'
+        AND o.order_purchase_timestamp <  DATE '2018-04-01'
+      GROUP BY 1
+      ORDER BY 1
+    note: >
+      For a "why" question, split the change into volume (orders) and value (average order
+      value) first. Then break the larger effect down by category or state in a second query.
+      Describe these as drivers: the data shows what moved, not what caused it.

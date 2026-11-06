@@ -1,0 +1,1634 @@
+{
+  "label": "mock pipeline test, NOT model accuracy",
+  "api_calls": 0,
+  "summaries": {
+    "plain": {
+      "n_answerable": 27,
+      "n_total": 30,
+      "query_ran": 27,
+      "execution_correct": 27,
+      "answer_correct": 29,
+      "execution_ci": [
+        0.8754409628553641,
+        1.0
+      ],
+      "answer_ci": [
+        0.8332924860304112,
+        0.9940915620051425
+      ],
+      "first_query_ok": 25,
+      "failed_queries": 2,
+      "blocked_queries": 1,
+      "call_limit_hits": 0,
+      "avg_llm_calls": 1.9666666666666666,
+      "figures": 80,
+      "figures_unverified": 0,
+      "by_tier": {
+        "easy": [
+          10,
+          10
+        ],
+        "medium": [
+          11,
+          11
+        ],
+        "hard": [
+          5,
+          6
+        ],
+        "unanswerable": [
+          3,
+          3
+        ]
+      }
+    },
+    "enhanced": {
+      "n_answerable": 27,
+      "n_total": 30,
+      "query_ran": 27,
+      "execution_correct": 27,
+      "answer_correct": 29,
+      "execution_ci": [
+        0.8754409628553641,
+        1.0
+      ],
+      "answer_ci": [
+        0.8332924860304112,
+        0.9940915620051425
+      ],
+      "first_query_ok": 25,
+      "failed_queries": 2,
+      "blocked_queries": 1,
+      "call_limit_hits": 0,
+      "avg_llm_calls": 1.9666666666666666,
+      "figures": 80,
+      "figures_unverified": 0,
+      "by_tier": {
+        "easy": [
+          10,
+          10
+        ],
+        "medium": [
+          11,
+          11
+        ],
+        "hard": [
+          5,
+          6
+        ],
+        "unanswerable": [
+          3,
+          3
+        ]
+      }
+    }
+  },
+  "results": {
+    "plain": [
+      {
+        "id": "E01",
+        "tier": "easy",
+        "question": "How many orders are in the database in total?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 1,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: orders = 99441",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT count(*) AS orders FROM orders",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "E02",
+        "tier": "easy",
+        "question": "How many unique customers, meaning real people, have placed an order?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 1,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: people = 96096",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT count(DISTINCT customer_unique_id) AS people FROM customers",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "E03",
+        "tier": "easy",
+        "question": "What is the total revenue across the whole dataset?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": false,
+        "queries": 2,
+        "failed_queries": 1,
+        "blocked_queries": 0,
+        "llm_calls": 3,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 1,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q2]: revenue = 13,494,400.74",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "error",
+            "sql": "SELECT sum(no_such_price_column) FROM order_items",
+            "error": "Binder Error: Referenced column \"no_such_price_column\" not found in FROM clause!\nCandidate bindings: \"price\", \"product_id\", \"order_item_id\", \"shipping_limit_date\"\n\nLINE 2: SELECT sum(no_such_price_column) FROM order_items\n                   ^^^^^^^^^^^^^^^^^^^^"
+          },
+          {
+            "id": "Q2",
+            "status": "ok",
+            "sql": "SELECT sum(i.price) AS revenue\nFROM order_items i JOIN orders o USING (order_id)\nWHERE o.order_status NOT IN ('canceled', 'unavailable')",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "E04",
+        "tier": "easy",
+        "question": "What is the average review score across all reviews?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 1,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: avg_score = 4.0864",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT avg(review_score) AS avg_score FROM order_reviews",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "E05",
+        "tier": "easy",
+        "question": "Which state has the most sellers, and how many sellers does it have?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 1,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: seller_state = SP; sellers = 1849",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT seller_state, count(*) AS sellers\nFROM sellers GROUP BY 1 ORDER BY 2 DESC LIMIT 1",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "E06",
+        "tier": "easy",
+        "question": "What percentage of all orders were canceled?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 1,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: pct_canceled = 0.6285",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT 100.0 * count(*) FILTER (WHERE order_status = 'canceled') / count(*) AS pct_canceled\nFROM orders",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "E07",
+        "tier": "easy",
+        "question": "Which payment type is used most often, and how many payment records use it?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 1,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: payment_type = credit_card; payments = 76795",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT payment_type, count(*) AS payments\nFROM order_payments GROUP BY 1 ORDER BY 2 DESC LIMIT 1",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "E08",
+        "tier": "easy",
+        "question": "What is the average freight charge per order item?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 1,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: avg_freight = 20.032",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT avg(freight_value) AS avg_freight FROM order_items",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "E09",
+        "tier": "easy",
+        "question": "How many products have no category?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 1,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: products = 610",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT count(*) AS products FROM products WHERE product_category_name IS NULL",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "E10",
+        "tier": "easy",
+        "question": "How many orders were placed in 2017?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 1,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: orders = 45101",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT count(*) AS orders FROM orders WHERE year(order_purchase_timestamp) = 2017",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "M01",
+        "tier": "medium",
+        "question": "What is total revenue by region?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 5,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: region = Southeast; revenue = 8,822,530.97 | region = South; revenue = 1,938,021.12 | region = Northeast; revenue = 1,538,209.28 | region = Central-West; revenue = 861,825.09 | region = North; revenue = 333,814.28",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT r.region, sum(i.price) AS revenue\nFROM order_items i JOIN orders o USING (order_id)\nJOIN customers c USING (customer_id)\nJOIN state_regions r ON r.state = c.customer_state\nWHERE o.order_status NOT IN ('canceled', 'unavailable')\nGROUP BY 1 ORDER BY 2 DESC",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "M02",
+        "tier": "medium",
+        "question": "What are the top 5 product categories by revenue? Use English category names.",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": false,
+        "queries": 2,
+        "failed_queries": 1,
+        "blocked_queries": 1,
+        "llm_calls": 3,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 5,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q2]: category = health_beauty; revenue = 1,255,695.13 | category = watches_gifts; revenue = 1,198,185.21 | category = bed_bath_table; revenue = 1,035,964.06 | category = sports_leisure; revenue = 979,740.92 | category = computers_accessories; revenue = 904,322.02",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "blocked",
+            "sql": "DROP TABLE order_items",
+            "error": "Only SELECT queries are allowed; got DROP."
+          },
+          {
+            "id": "Q2",
+            "status": "ok",
+            "sql": "SELECT coalesce(t.product_category_name_english, p.product_category_name) AS category,\n       sum(i.price) AS revenue\nFROM order_items i JOIN orders o USING (order_id)\nJOIN products p USING (product_id)\nLEFT JOIN category_translation t ON t.product_category_name = p.product_category_name\nWHERE o.order_status NOT IN ('canceled', 'unavailable')\n  AND p.product_category_name IS NOT NULL\nGROUP BY 1 ORDER BY 2 DESC LIMIT 5",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "M03",
+        "tier": "medium",
+        "question": "What was monthly revenue from January to August 2018?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 8,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: month = 2018-01; revenue = 945,456.29 | month = 2018-02; revenue = 837,895.43 | month = 2018-03; revenue = 981,051.06 | month = 2018-04; revenue = 993,592.98 | month = 2018-05; revenue = 992,871.75 | month = 2018-06; revenue = 863,265.53 | month = 2018-07; revenue = 878,044.27 | month = 2018-08; revenue = 848,860.1",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT strftime(o.order_purchase_timestamp, '%Y-%m') AS month, sum(i.price) AS revenue\nFROM order_items i JOIN orders o USING (order_id)\nWHERE o.order_status NOT IN ('canceled', 'unavailable')\n  AND o.order_purchase_timestamp >= DATE '2018-01-01'\n  AND o.order_purchase_timestamp <  DATE '2018-09-01'\nGROUP BY 1 ORDER BY 1",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "M04",
+        "tier": "medium",
+        "question": "What is the average delivery time in days, from purchase to customer delivery, for each region?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 5,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: region = Southeast; avg_days = 10.7519 | region = South; avg_days = 14.0324 | region = Central-West; avg_days = 15.0178 | region = Northeast; avg_days = 20.005 | region = North; avg_days = 22.5923",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT r.region,\n       avg(date_diff('second', o.order_purchase_timestamp, o.order_delivered_customer_date) / 86400.0) AS avg_days\nFROM orders o JOIN customers c USING (customer_id)\nJOIN state_regions r ON r.state = c.customer_state\nWHERE o.order_status = 'delivered' AND o.order_delivered_customer_date IS NOT NULL\nGROUP BY 1 ORDER BY 2",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "M05",
+        "tier": "medium",
+        "question": "Among customer states with at least 1,000 reviewed orders, which has the highest average review score?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 1,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: customer_state = PR; avg_score = 4.1811",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "WITH per_order AS (\n  SELECT order_id, avg(review_score) AS score FROM order_reviews GROUP BY 1\n)\nSELECT c.customer_state, avg(p.score) AS avg_score\nFROM per_order p JOIN orders o USING (order_id) JOIN customers c USING (customer_id)\nGROUP BY 1 HAVING count(*) >= 1000 ORDER BY 2 DESC LIMIT 1",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "M06",
+        "tier": "medium",
+        "question": "What percentage of delivered orders placed in 2018 arrived after the estimated delivery date?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 1,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: pct_late = 7.7269",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT 100.0 * count(*) FILTER (\n         WHERE CAST(order_delivered_customer_date AS DATE) > CAST(order_estimated_delivery_date AS DATE)\n       ) / count(*) AS pct_late\nFROM orders\nWHERE order_status = 'delivered' AND order_delivered_customer_date IS NOT NULL\n  AND year(order_purchase_timestamp) = 2018",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "M07",
+        "tier": "medium",
+        "question": "Who are the top 5 sellers by revenue? Give each seller's id and state.",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 5,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: seller_id = 4869f7a5dfa277a7dca6462dcf3b52b2; seller_state = SP; revenue = 229,237.63 | seller_id = 53243585a1d6dc2643021fd1853d8905; seller_state = BA; revenue = 222,776.05 | seller_id = 4a3ca9315b744ce9f8e9374361493884; seller_state = SP; revenue = 200,326.12 | seller_id = fa1c13f2614d7b5c4749cbc52fecda94; seller_state = SP; revenue = 192,842.13 | seller_id = 7c67e1448b00f6e969d365cea6b010ab; seller_state = SP; revenue = 187,923.89",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT i.seller_id, s.seller_state, sum(i.price) AS revenue\nFROM order_items i JOIN orders o USING (order_id) JOIN sellers s USING (seller_id)\nWHERE o.order_status NOT IN ('canceled', 'unavailable')\nGROUP BY 1, 2 ORDER BY 3 DESC LIMIT 5",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "M08",
+        "tier": "medium",
+        "question": "What was the average order value in Q2 2018?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 1,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: avg_order_value = 143.2241",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT sum(i.price) / count(DISTINCT i.order_id) AS avg_order_value\nFROM order_items i JOIN orders o USING (order_id)\nWHERE o.order_status NOT IN ('canceled', 'unavailable')\n  AND o.order_purchase_timestamp >= DATE '2018-04-01'\n  AND o.order_purchase_timestamp <  DATE '2018-07-01'",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "M09",
+        "tier": "medium",
+        "question": "What percentage of customers, meaning real people, placed more than one order?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 1,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: pct_repeat = 3.1188",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "WITH people AS (\n  SELECT customer_unique_id, count(*) AS orders FROM customers GROUP BY 1\n)\nSELECT 100.0 * count(*) FILTER (WHERE orders > 1) / count(*) AS pct_repeat FROM people",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "M10",
+        "tier": "medium",
+        "question": "How did revenue last quarter compare with the quarter before?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 2,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: revenue_q1 = 2,764,402.78; revenue_q2 = 2,849,730.26",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT sum(i.price) FILTER (WHERE o.order_purchase_timestamp < DATE '2018-04-01') AS revenue_q1,\n       sum(i.price) FILTER (WHERE o.order_purchase_timestamp >= DATE '2018-04-01') AS revenue_q2\nFROM order_items i JOIN orders o USING (order_id)\nWHERE o.order_status NOT IN ('canceled', 'unavailable')\n  AND o.order_purchase_timestamp >= DATE '2018-01-01'\n  AND o.order_purchase_timestamp <  DATE '2018-07-01'",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "M11",
+        "tier": "medium",
+        "question": "Among product categories with at least 500 reviewed orders, which has the lowest average review score?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 1,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: category = office_furniture; avg_score = 3.6164",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "WITH per_order AS (\n  SELECT order_id, avg(review_score) AS score FROM order_reviews GROUP BY 1\n),\norder_categories AS (\n  SELECT DISTINCT i.order_id,\n         coalesce(t.product_category_name_english, p.product_category_name) AS category\n  FROM order_items i JOIN products p USING (product_id)\n  LEFT JOIN category_translation t ON t.product_category_name = p.product_category_name\n  WHERE p.product_category_name IS NOT NULL\n)\nSELECT c.category, avg(s.score) AS avg_score\nFROM order_categories c JOIN per_order s USING (order_id)\nGROUP BY 1 HAVING count(*) >= 500 ORDER BY 2 LIMIT 1",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "H01",
+        "tier": "hard",
+        "question": "Which region's revenue fell most last quarter and why?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": false,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 8,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: region = North; quarter = 2018-01-01 00:00:00; revenue = 66,354.6; orders = 373 | region = North; quarter = 2018-04-01 00:00:00; revenue = 56,921.9; orders = 309 | region = Northeast; quarter = 2018-01-01 00:00:00; revenue = 309,119.56; orders = 1938 | region = Northeast; quarter = 2018-04-01 00:00:00; revenue = 298,446.4; orders = 1743",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT r.region, date_trunc('quarter', o.order_purchase_timestamp) AS quarter,\n       sum(i.price) AS revenue, count(DISTINCT i.order_id) AS orders\nFROM order_items i JOIN orders o USING (order_id)\nJOIN customers c USING (customer_id)\nJOIN state_regions r ON r.state = c.customer_state\nWHERE o.order_status NOT IN ('canceled', 'unavailable')\n  AND o.order_purchase_timestamp >= DATE '2018-01-01'\n  AND o.order_purchase_timestamp <  DATE '2018-07-01'\n  AND r.region IN ('North', 'Northeast')\nGROUP BY 1, 2 ORDER BY 1, 2",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "H02",
+        "tier": "hard",
+        "question": "Among customer states with at least 300 delivered orders in both Q1 and Q2 2018, which state's late-delivery rate fell the most from Q1 to Q2 2018?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 2,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: state = RJ; late_q1 = 27.3043; late_q2 = 4.4635",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "WITH d AS (\n  SELECT c.customer_state AS state,\n         CASE WHEN o.order_purchase_timestamp < DATE '2018-04-01' THEN 'q1' ELSE 'q2' END AS q,\n         CAST(o.order_delivered_customer_date AS DATE) > CAST(o.order_estimated_delivery_date AS DATE) AS late\n  FROM orders o JOIN customers c USING (customer_id)\n  WHERE o.order_status = 'delivered' AND o.order_delivered_customer_date IS NOT NULL\n    AND o.order_purchase_timestamp >= DATE '2018-01-01'\n    AND o.order_purchase_timestamp <  DATE '2018-07-01'\n),\ns AS (\n  SELECT state,\n         count(*) FILTER (WHERE q = 'q1') AS n1, count(*) FILTER (WHERE q = 'q2') AS n2,\n         100.0 * count(*) FILTER (WHERE q = 'q1' AND late) / count(*) FILTER (WHERE q = 'q1') AS late_q1,\n         100.0 * count(*) FILTER (WHERE q = 'q2' AND late) / count(*) FILTER (WHERE q = 'q2') AS late_q2\n  FROM d GROUP BY 1\n)\nSELECT state, late_q1, late_q2 FROM s\nWHERE n1 >= 300 AND n2 >= 300 ORDER BY late_q2 - late_q1 LIMIT 1",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "H03",
+        "tier": "hard",
+        "question": "How much lower is the average review score for orders delivered late than for orders delivered on time?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 2,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: late = False; avg_score = 4.2906 | late = True; avg_score = 2.2718",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "WITH per_order AS (\n  SELECT order_id, avg(review_score) AS score FROM order_reviews GROUP BY 1\n)\nSELECT CAST(o.order_delivered_customer_date AS DATE) > CAST(o.order_estimated_delivery_date AS DATE) AS late,\n       avg(p.score) AS avg_score\nFROM orders o JOIN per_order p USING (order_id)\nWHERE o.order_status = 'delivered' AND o.order_delivered_customer_date IS NOT NULL\nGROUP BY 1 ORDER BY 1",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "H04",
+        "tier": "hard",
+        "question": "Which product category added the most revenue, in R$, from the second half of 2017 to the first half of 2018?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 2,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: category = health_beauty; h2_2017 = 318,268.91; h1_2018 = 544,009.42",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "WITH c AS (\n  SELECT coalesce(t.product_category_name_english, p.product_category_name) AS category,\n         sum(i.price) FILTER (WHERE o.order_purchase_timestamp < DATE '2018-01-01') AS h2_2017,\n         sum(i.price) FILTER (WHERE o.order_purchase_timestamp >= DATE '2018-01-01') AS h1_2018\n  FROM order_items i JOIN orders o USING (order_id)\n  JOIN products p USING (product_id)\n  LEFT JOIN category_translation t ON t.product_category_name = p.product_category_name\n  WHERE o.order_status NOT IN ('canceled', 'unavailable')\n    AND p.product_category_name IS NOT NULL\n    AND o.order_purchase_timestamp >= DATE '2017-07-01'\n    AND o.order_purchase_timestamp <  DATE '2018-07-01'\n  GROUP BY 1\n)\nSELECT category, h2_2017, h1_2018 FROM c ORDER BY h1_2018 - h2_2017 DESC LIMIT 1",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "H05",
+        "tier": "hard",
+        "question": "What are the top 3 product categories by revenue in each region? Use English category names.",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 15,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: region = Central-West; category = watches_gifts; revenue = 86,347.9 | region = Central-West; category = health_beauty; revenue = 84,708.49 | region = Central-West; category = sports_leisure; revenue = 60,863.03 | region = North; category = health_beauty; revenue = 42,234.38 | region = North; category = watches_gifts; revenue = 37,619.73 | region = North; category = sports_leisure; revenue = 26,293.8 | region = Northeast; category = health_beauty; revenue = 200,031.62 | region = Northeast; category = watches_gifts; revenue = 164,801.35 | region = Northeast; category = sports_leisure; revenue = 98,774.45 | region = South; category = sports_leisure; revenue = 155,557.62 | region = South; category = health_beauty; revenue = 145,685.81 | region = South; category = watches_gifts; revenue = 141,430.9 | region = Southeast; category = health_beauty; revenue = 783,034.83 | region = Southeast; category = bed_bath_table; revenue = 777,745.46 | region = Southeast; category = watches_gifts; revenue = 767,985.33",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "WITH c AS (\n  SELECT r.region, coalesce(t.product_category_name_english, p.product_category_name) AS category,\n         sum(i.price) AS revenue\n  FROM order_items i JOIN orders o USING (order_id)\n  JOIN customers cu USING (customer_id)\n  JOIN state_regions r ON r.state = cu.customer_state\n  JOIN products p USING (product_id)\n  LEFT JOIN category_translation t ON t.product_category_name = p.product_category_name\n  WHERE o.order_status NOT IN ('canceled', 'unavailable')\n    AND p.product_category_name IS NOT NULL\n  GROUP BY 1, 2\n)\nSELECT region, category, revenue FROM c\nQUALIFY row_number() OVER (PARTITION BY region ORDER BY revenue DESC) <= 3\nORDER BY region, revenue DESC",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "H06",
+        "tier": "hard",
+        "question": "Why did revenue jump in November 2017 compared with October 2017?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 6,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: period = 2017-10; revenue = 660,179.62; orders = 4547 | period = 2017-11; revenue = 1,003,862.14; orders = 7421 | period = 2017-11-24; revenue = 152,653.74; orders = 1166",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT strftime(o.order_purchase_timestamp, '%Y-%m') AS period,\n       sum(i.price) AS revenue, count(DISTINCT i.order_id) AS orders\nFROM order_items i JOIN orders o USING (order_id)\nWHERE o.order_status NOT IN ('canceled', 'unavailable')\n  AND o.order_purchase_timestamp >= DATE '2017-10-01'\n  AND o.order_purchase_timestamp <  DATE '2017-12-01'\nGROUP BY 1\nUNION ALL\nSELECT '2017-11-24', sum(i.price), count(DISTINCT i.order_id)\nFROM order_items i JOIN orders o USING (order_id)\nWHERE o.order_status NOT IN ('canceled', 'unavailable')\n  AND CAST(o.order_purchase_timestamp AS DATE) = DATE '2017-11-24'\nORDER BY 1",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "U01",
+        "tier": "unanswerable",
+        "question": "What is our profit margin by product category?",
+        "query_ran": null,
+        "execution_correct": null,
+        "answer_correct": true,
+        "first_query_ok": false,
+        "queries": 0,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 1,
+        "stop_reason": "answered",
+        "answerable": false,
+        "figures": 0,
+        "figures_unverified": [],
+        "answer": "[MOCK] The database does not hold this information.",
+        "sql": []
+      },
+      {
+        "id": "U02",
+        "tier": "unanswerable",
+        "question": "Which marketing channel brought in the most revenue last quarter?",
+        "query_ran": null,
+        "execution_correct": null,
+        "answer_correct": true,
+        "first_query_ok": false,
+        "queries": 0,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 1,
+        "stop_reason": "answered",
+        "answerable": false,
+        "figures": 0,
+        "figures_unverified": [],
+        "answer": "[MOCK] The database does not hold this information.",
+        "sql": []
+      },
+      {
+        "id": "U03",
+        "tier": "unanswerable",
+        "question": "What will total revenue be in Q1 2019?",
+        "query_ran": null,
+        "execution_correct": null,
+        "answer_correct": true,
+        "first_query_ok": false,
+        "queries": 0,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 1,
+        "stop_reason": "answered",
+        "answerable": false,
+        "figures": 0,
+        "figures_unverified": [],
+        "answer": "[MOCK] The database does not hold this information.",
+        "sql": []
+      }
+    ],
+    "enhanced": [
+      {
+        "id": "E01",
+        "tier": "easy",
+        "question": "How many orders are in the database in total?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 1,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: orders = 99441",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT count(*) AS orders FROM orders",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "E02",
+        "tier": "easy",
+        "question": "How many unique customers, meaning real people, have placed an order?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 1,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: people = 96096",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT count(DISTINCT customer_unique_id) AS people FROM customers",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "E03",
+        "tier": "easy",
+        "question": "What is the total revenue across the whole dataset?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": false,
+        "queries": 2,
+        "failed_queries": 1,
+        "blocked_queries": 0,
+        "llm_calls": 3,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 1,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q2]: revenue = 13,494,400.74",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "error",
+            "sql": "SELECT sum(no_such_price_column) FROM order_items",
+            "error": "Binder Error: Referenced column \"no_such_price_column\" not found in FROM clause!\nCandidate bindings: \"price\", \"product_id\", \"order_item_id\", \"shipping_limit_date\"\n\nLINE 2: SELECT sum(no_such_price_column) FROM order_items\n                   ^^^^^^^^^^^^^^^^^^^^"
+          },
+          {
+            "id": "Q2",
+            "status": "ok",
+            "sql": "SELECT sum(i.price) AS revenue\nFROM order_items i JOIN orders o USING (order_id)\nWHERE o.order_status NOT IN ('canceled', 'unavailable')",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "E04",
+        "tier": "easy",
+        "question": "What is the average review score across all reviews?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 1,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: avg_score = 4.0864",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT avg(review_score) AS avg_score FROM order_reviews",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "E05",
+        "tier": "easy",
+        "question": "Which state has the most sellers, and how many sellers does it have?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 1,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: seller_state = SP; sellers = 1849",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT seller_state, count(*) AS sellers\nFROM sellers GROUP BY 1 ORDER BY 2 DESC LIMIT 1",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "E06",
+        "tier": "easy",
+        "question": "What percentage of all orders were canceled?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 1,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: pct_canceled = 0.6285",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT 100.0 * count(*) FILTER (WHERE order_status = 'canceled') / count(*) AS pct_canceled\nFROM orders",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "E07",
+        "tier": "easy",
+        "question": "Which payment type is used most often, and how many payment records use it?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 1,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: payment_type = credit_card; payments = 76795",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT payment_type, count(*) AS payments\nFROM order_payments GROUP BY 1 ORDER BY 2 DESC LIMIT 1",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "E08",
+        "tier": "easy",
+        "question": "What is the average freight charge per order item?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 1,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: avg_freight = 20.032",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT avg(freight_value) AS avg_freight FROM order_items",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "E09",
+        "tier": "easy",
+        "question": "How many products have no category?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 1,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: products = 610",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT count(*) AS products FROM products WHERE product_category_name IS NULL",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "E10",
+        "tier": "easy",
+        "question": "How many orders were placed in 2017?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 1,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: orders = 45101",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT count(*) AS orders FROM orders WHERE year(order_purchase_timestamp) = 2017",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "M01",
+        "tier": "medium",
+        "question": "What is total revenue by region?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 5,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: region = Southeast; revenue = 8,822,530.97 | region = South; revenue = 1,938,021.12 | region = Northeast; revenue = 1,538,209.28 | region = Central-West; revenue = 861,825.09 | region = North; revenue = 333,814.28",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT r.region, sum(i.price) AS revenue\nFROM order_items i JOIN orders o USING (order_id)\nJOIN customers c USING (customer_id)\nJOIN state_regions r ON r.state = c.customer_state\nWHERE o.order_status NOT IN ('canceled', 'unavailable')\nGROUP BY 1 ORDER BY 2 DESC",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "M02",
+        "tier": "medium",
+        "question": "What are the top 5 product categories by revenue? Use English category names.",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": false,
+        "queries": 2,
+        "failed_queries": 1,
+        "blocked_queries": 1,
+        "llm_calls": 3,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 5,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q2]: category = health_beauty; revenue = 1,255,695.13 | category = watches_gifts; revenue = 1,198,185.21 | category = bed_bath_table; revenue = 1,035,964.06 | category = sports_leisure; revenue = 979,740.92 | category = computers_accessories; revenue = 904,322.02",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "blocked",
+            "sql": "DROP TABLE order_items",
+            "error": "Only SELECT queries are allowed; got DROP."
+          },
+          {
+            "id": "Q2",
+            "status": "ok",
+            "sql": "SELECT coalesce(t.product_category_name_english, p.product_category_name) AS category,\n       sum(i.price) AS revenue\nFROM order_items i JOIN orders o USING (order_id)\nJOIN products p USING (product_id)\nLEFT JOIN category_translation t ON t.product_category_name = p.product_category_name\nWHERE o.order_status NOT IN ('canceled', 'unavailable')\n  AND p.product_category_name IS NOT NULL\nGROUP BY 1 ORDER BY 2 DESC LIMIT 5",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "M03",
+        "tier": "medium",
+        "question": "What was monthly revenue from January to August 2018?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 8,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: month = 2018-01; revenue = 945,456.29 | month = 2018-02; revenue = 837,895.43 | month = 2018-03; revenue = 981,051.06 | month = 2018-04; revenue = 993,592.98 | month = 2018-05; revenue = 992,871.75 | month = 2018-06; revenue = 863,265.53 | month = 2018-07; revenue = 878,044.27 | month = 2018-08; revenue = 848,860.1",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT strftime(o.order_purchase_timestamp, '%Y-%m') AS month, sum(i.price) AS revenue\nFROM order_items i JOIN orders o USING (order_id)\nWHERE o.order_status NOT IN ('canceled', 'unavailable')\n  AND o.order_purchase_timestamp >= DATE '2018-01-01'\n  AND o.order_purchase_timestamp <  DATE '2018-09-01'\nGROUP BY 1 ORDER BY 1",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "M04",
+        "tier": "medium",
+        "question": "What is the average delivery time in days, from purchase to customer delivery, for each region?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 5,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: region = Southeast; avg_days = 10.7519 | region = South; avg_days = 14.0324 | region = Central-West; avg_days = 15.0178 | region = Northeast; avg_days = 20.005 | region = North; avg_days = 22.5923",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT r.region,\n       avg(date_diff('second', o.order_purchase_timestamp, o.order_delivered_customer_date) / 86400.0) AS avg_days\nFROM orders o JOIN customers c USING (customer_id)\nJOIN state_regions r ON r.state = c.customer_state\nWHERE o.order_status = 'delivered' AND o.order_delivered_customer_date IS NOT NULL\nGROUP BY 1 ORDER BY 2",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "M05",
+        "tier": "medium",
+        "question": "Among customer states with at least 1,000 reviewed orders, which has the highest average review score?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 1,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: customer_state = PR; avg_score = 4.1811",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "WITH per_order AS (\n  SELECT order_id, avg(review_score) AS score FROM order_reviews GROUP BY 1\n)\nSELECT c.customer_state, avg(p.score) AS avg_score\nFROM per_order p JOIN orders o USING (order_id) JOIN customers c USING (customer_id)\nGROUP BY 1 HAVING count(*) >= 1000 ORDER BY 2 DESC LIMIT 1",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "M06",
+        "tier": "medium",
+        "question": "What percentage of delivered orders placed in 2018 arrived after the estimated delivery date?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 1,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: pct_late = 7.7269",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT 100.0 * count(*) FILTER (\n         WHERE CAST(order_delivered_customer_date AS DATE) > CAST(order_estimated_delivery_date AS DATE)\n       ) / count(*) AS pct_late\nFROM orders\nWHERE order_status = 'delivered' AND order_delivered_customer_date IS NOT NULL\n  AND year(order_purchase_timestamp) = 2018",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "M07",
+        "tier": "medium",
+        "question": "Who are the top 5 sellers by revenue? Give each seller's id and state.",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 5,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: seller_id = 4869f7a5dfa277a7dca6462dcf3b52b2; seller_state = SP; revenue = 229,237.63 | seller_id = 53243585a1d6dc2643021fd1853d8905; seller_state = BA; revenue = 222,776.05 | seller_id = 4a3ca9315b744ce9f8e9374361493884; seller_state = SP; revenue = 200,326.12 | seller_id = fa1c13f2614d7b5c4749cbc52fecda94; seller_state = SP; revenue = 192,842.13 | seller_id = 7c67e1448b00f6e969d365cea6b010ab; seller_state = SP; revenue = 187,923.89",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT i.seller_id, s.seller_state, sum(i.price) AS revenue\nFROM order_items i JOIN orders o USING (order_id) JOIN sellers s USING (seller_id)\nWHERE o.order_status NOT IN ('canceled', 'unavailable')\nGROUP BY 1, 2 ORDER BY 3 DESC LIMIT 5",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "M08",
+        "tier": "medium",
+        "question": "What was the average order value in Q2 2018?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 1,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: avg_order_value = 143.2241",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT sum(i.price) / count(DISTINCT i.order_id) AS avg_order_value\nFROM order_items i JOIN orders o USING (order_id)\nWHERE o.order_status NOT IN ('canceled', 'unavailable')\n  AND o.order_purchase_timestamp >= DATE '2018-04-01'\n  AND o.order_purchase_timestamp <  DATE '2018-07-01'",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "M09",
+        "tier": "medium",
+        "question": "What percentage of customers, meaning real people, placed more than one order?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 1,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: pct_repeat = 3.1188",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "WITH people AS (\n  SELECT customer_unique_id, count(*) AS orders FROM customers GROUP BY 1\n)\nSELECT 100.0 * count(*) FILTER (WHERE orders > 1) / count(*) AS pct_repeat FROM people",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "M10",
+        "tier": "medium",
+        "question": "How did revenue last quarter compare with the quarter before?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 2,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: revenue_q1 = 2,764,402.78; revenue_q2 = 2,849,730.26",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT sum(i.price) FILTER (WHERE o.order_purchase_timestamp < DATE '2018-04-01') AS revenue_q1,\n       sum(i.price) FILTER (WHERE o.order_purchase_timestamp >= DATE '2018-04-01') AS revenue_q2\nFROM order_items i JOIN orders o USING (order_id)\nWHERE o.order_status NOT IN ('canceled', 'unavailable')\n  AND o.order_purchase_timestamp >= DATE '2018-01-01'\n  AND o.order_purchase_timestamp <  DATE '2018-07-01'",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "M11",
+        "tier": "medium",
+        "question": "Among product categories with at least 500 reviewed orders, which has the lowest average review score?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 1,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: category = office_furniture; avg_score = 3.6164",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "WITH per_order AS (\n  SELECT order_id, avg(review_score) AS score FROM order_reviews GROUP BY 1\n),\norder_categories AS (\n  SELECT DISTINCT i.order_id,\n         coalesce(t.product_category_name_english, p.product_category_name) AS category\n  FROM order_items i JOIN products p USING (product_id)\n  LEFT JOIN category_translation t ON t.product_category_name = p.product_category_name\n  WHERE p.product_category_name IS NOT NULL\n)\nSELECT c.category, avg(s.score) AS avg_score\nFROM order_categories c JOIN per_order s USING (order_id)\nGROUP BY 1 HAVING count(*) >= 500 ORDER BY 2 LIMIT 1",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "H01",
+        "tier": "hard",
+        "question": "Which region's revenue fell most last quarter and why?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": false,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 8,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: region = North; quarter = 2018-01-01 00:00:00; revenue = 66,354.6; orders = 373 | region = North; quarter = 2018-04-01 00:00:00; revenue = 56,921.9; orders = 309 | region = Northeast; quarter = 2018-01-01 00:00:00; revenue = 309,119.56; orders = 1938 | region = Northeast; quarter = 2018-04-01 00:00:00; revenue = 298,446.4; orders = 1743",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT r.region, date_trunc('quarter', o.order_purchase_timestamp) AS quarter,\n       sum(i.price) AS revenue, count(DISTINCT i.order_id) AS orders\nFROM order_items i JOIN orders o USING (order_id)\nJOIN customers c USING (customer_id)\nJOIN state_regions r ON r.state = c.customer_state\nWHERE o.order_status NOT IN ('canceled', 'unavailable')\n  AND o.order_purchase_timestamp >= DATE '2018-01-01'\n  AND o.order_purchase_timestamp <  DATE '2018-07-01'\n  AND r.region IN ('North', 'Northeast')\nGROUP BY 1, 2 ORDER BY 1, 2",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "H02",
+        "tier": "hard",
+        "question": "Among customer states with at least 300 delivered orders in both Q1 and Q2 2018, which state's late-delivery rate fell the most from Q1 to Q2 2018?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 2,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: state = RJ; late_q1 = 27.3043; late_q2 = 4.4635",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "WITH d AS (\n  SELECT c.customer_state AS state,\n         CASE WHEN o.order_purchase_timestamp < DATE '2018-04-01' THEN 'q1' ELSE 'q2' END AS q,\n         CAST(o.order_delivered_customer_date AS DATE) > CAST(o.order_estimated_delivery_date AS DATE) AS late\n  FROM orders o JOIN customers c USING (customer_id)\n  WHERE o.order_status = 'delivered' AND o.order_delivered_customer_date IS NOT NULL\n    AND o.order_purchase_timestamp >= DATE '2018-01-01'\n    AND o.order_purchase_timestamp <  DATE '2018-07-01'\n),\ns AS (\n  SELECT state,\n         count(*) FILTER (WHERE q = 'q1') AS n1, count(*) FILTER (WHERE q = 'q2') AS n2,\n         100.0 * count(*) FILTER (WHERE q = 'q1' AND late) / count(*) FILTER (WHERE q = 'q1') AS late_q1,\n         100.0 * count(*) FILTER (WHERE q = 'q2' AND late) / count(*) FILTER (WHERE q = 'q2') AS late_q2\n  FROM d GROUP BY 1\n)\nSELECT state, late_q1, late_q2 FROM s\nWHERE n1 >= 300 AND n2 >= 300 ORDER BY late_q2 - late_q1 LIMIT 1",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "H03",
+        "tier": "hard",
+        "question": "How much lower is the average review score for orders delivered late than for orders delivered on time?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 2,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: late = False; avg_score = 4.2906 | late = True; avg_score = 2.2718",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "WITH per_order AS (\n  SELECT order_id, avg(review_score) AS score FROM order_reviews GROUP BY 1\n)\nSELECT CAST(o.order_delivered_customer_date AS DATE) > CAST(o.order_estimated_delivery_date AS DATE) AS late,\n       avg(p.score) AS avg_score\nFROM orders o JOIN per_order p USING (order_id)\nWHERE o.order_status = 'delivered' AND o.order_delivered_customer_date IS NOT NULL\nGROUP BY 1 ORDER BY 1",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "H04",
+        "tier": "hard",
+        "question": "Which product category added the most revenue, in R$, from the second half of 2017 to the first half of 2018?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 2,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: category = health_beauty; h2_2017 = 318,268.91; h1_2018 = 544,009.42",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "WITH c AS (\n  SELECT coalesce(t.product_category_name_english, p.product_category_name) AS category,\n         sum(i.price) FILTER (WHERE o.order_purchase_timestamp < DATE '2018-01-01') AS h2_2017,\n         sum(i.price) FILTER (WHERE o.order_purchase_timestamp >= DATE '2018-01-01') AS h1_2018\n  FROM order_items i JOIN orders o USING (order_id)\n  JOIN products p USING (product_id)\n  LEFT JOIN category_translation t ON t.product_category_name = p.product_category_name\n  WHERE o.order_status NOT IN ('canceled', 'unavailable')\n    AND p.product_category_name IS NOT NULL\n    AND o.order_purchase_timestamp >= DATE '2017-07-01'\n    AND o.order_purchase_timestamp <  DATE '2018-07-01'\n  GROUP BY 1\n)\nSELECT category, h2_2017, h1_2018 FROM c ORDER BY h1_2018 - h2_2017 DESC LIMIT 1",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "H05",
+        "tier": "hard",
+        "question": "What are the top 3 product categories by revenue in each region? Use English category names.",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 15,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: region = Central-West; category = watches_gifts; revenue = 86,347.9 | region = Central-West; category = health_beauty; revenue = 84,708.49 | region = Central-West; category = sports_leisure; revenue = 60,863.03 | region = North; category = health_beauty; revenue = 42,234.38 | region = North; category = watches_gifts; revenue = 37,619.73 | region = North; category = sports_leisure; revenue = 26,293.8 | region = Northeast; category = health_beauty; revenue = 200,031.62 | region = Northeast; category = watches_gifts; revenue = 164,801.35 | region = Northeast; category = sports_leisure; revenue = 98,774.45 | region = South; category = sports_leisure; revenue = 155,557.62 | region = South; category = health_beauty; revenue = 145,685.81 | region = South; category = watches_gifts; revenue = 141,430.9 | region = Southeast; category = health_beauty; revenue = 783,034.83 | region = Southeast; category = bed_bath_table; revenue = 777,745.46 | region = Southeast; category = watches_gifts; revenue = 767,985.33",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "WITH c AS (\n  SELECT r.region, coalesce(t.product_category_name_english, p.product_category_name) AS category,\n         sum(i.price) AS revenue\n  FROM order_items i JOIN orders o USING (order_id)\n  JOIN customers cu USING (customer_id)\n  JOIN state_regions r ON r.state = cu.customer_state\n  JOIN products p USING (product_id)\n  LEFT JOIN category_translation t ON t.product_category_name = p.product_category_name\n  WHERE o.order_status NOT IN ('canceled', 'unavailable')\n    AND p.product_category_name IS NOT NULL\n  GROUP BY 1, 2\n)\nSELECT region, category, revenue FROM c\nQUALIFY row_number() OVER (PARTITION BY region ORDER BY revenue DESC) <= 3\nORDER BY region, revenue DESC",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "H06",
+        "tier": "hard",
+        "question": "Why did revenue jump in November 2017 compared with October 2017?",
+        "query_ran": true,
+        "execution_correct": true,
+        "answer_correct": true,
+        "first_query_ok": true,
+        "queries": 1,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 2,
+        "stop_reason": "answered",
+        "answerable": true,
+        "figures": 6,
+        "figures_unverified": [],
+        "answer": "[MOCK] From [Q1]: period = 2017-10; revenue = 660,179.62; orders = 4547 | period = 2017-11; revenue = 1,003,862.14; orders = 7421 | period = 2017-11-24; revenue = 152,653.74; orders = 1166",
+        "sql": [
+          {
+            "id": "Q1",
+            "status": "ok",
+            "sql": "SELECT strftime(o.order_purchase_timestamp, '%Y-%m') AS period,\n       sum(i.price) AS revenue, count(DISTINCT i.order_id) AS orders\nFROM order_items i JOIN orders o USING (order_id)\nWHERE o.order_status NOT IN ('canceled', 'unavailable')\n  AND o.order_purchase_timestamp >= DATE '2017-10-01'\n  AND o.order_purchase_timestamp <  DATE '2017-12-01'\nGROUP BY 1\nUNION ALL\nSELECT '2017-11-24', sum(i.price), count(DISTINCT i.order_id)\nFROM order_items i JOIN orders o USING (order_id)\nWHERE o.order_status NOT IN ('canceled', 'unavailable')\n  AND CAST(o.order_purchase_timestamp AS DATE) = DATE '2017-11-24'\nORDER BY 1",
+            "error": ""
+          }
+        ]
+      },
+      {
+        "id": "U01",
+        "tier": "unanswerable",
+        "question": "What is our profit margin by product category?",
+        "query_ran": null,
+        "execution_correct": null,
+        "answer_correct": true,
+        "first_query_ok": false,
+        "queries": 0,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 1,
+        "stop_reason": "answered",
+        "answerable": false,
+        "figures": 0,
+        "figures_unverified": [],
+        "answer": "[MOCK] The database does not hold this information.",
+        "sql": []
+      },
+      {
+        "id": "U02",
+        "tier": "unanswerable",
+        "question": "Which marketing channel brought in the most revenue last quarter?",
+        "query_ran": null,
+        "execution_correct": null,
+        "answer_correct": true,
+        "first_query_ok": false,
+        "queries": 0,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 1,
+        "stop_reason": "answered",
+        "answerable": false,
+        "figures": 0,
+        "figures_unverified": [],
+        "answer": "[MOCK] The database does not hold this information.",
+        "sql": []
+      },
+      {
+        "id": "U03",
+        "tier": "unanswerable",
+        "question": "What will total revenue be in Q1 2019?",
+        "query_ran": null,
+        "execution_correct": null,
+        "answer_correct": true,
+        "first_query_ok": false,
+        "queries": 0,
+        "failed_queries": 0,
+        "blocked_queries": 0,
+        "llm_calls": 1,
+        "stop_reason": "answered",
+        "answerable": false,
+        "figures": 0,
+        "figures_unverified": [],
+        "answer": "[MOCK] The database does not hold this information.",
+        "sql": []
+      }
+    ]
+  }
+}

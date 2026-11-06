@@ -1,0 +1,121 @@
+# Business meaning of the schema. Used only by the "enhanced" prompt condition.
+# tests/test_semantic.py checks that every table and column named here really exists.
+
+tables:
+  orders:
+    description: One row per order, with its lifecycle timestamps. The hub of the schema.
+    columns:
+      order_id: Primary key.
+      customer_id: Join to customers. This identifies the ORDER's customer record, not a person.
+      order_status: "One of delivered, shipped, canceled, unavailable, invoiced, processing, created, approved."
+      order_purchase_timestamp: When the order was placed. Use this date for all time-based reporting.
+      order_approved_at: When payment was approved.
+      order_delivered_carrier_date: When the seller handed the order to the carrier.
+      order_delivered_customer_date: When the customer received it. NULL if not delivered.
+      order_estimated_delivery_date: Delivery date promised at purchase.
+  order_items:
+    description: One row per item in an order. An order can have several items.
+    columns:
+      order_id: Join to orders.
+      order_item_id: Position of the item within the order (1, 2, 3...). Not a quantity.
+      product_id: Join to products.
+      seller_id: Join to sellers.
+      shipping_limit_date: Deadline for the seller to hand the item to the carrier.
+      price: Item price in Brazilian reais (R$), excluding freight. This is the revenue column.
+      freight_value: Shipping charged for this item, in R$. Not part of revenue.
+  order_payments:
+    description: One row per payment method used on an order. An order can have several rows.
+    columns:
+      order_id: Join to orders.
+      payment_sequential: Sequence number of the payment within the order.
+      payment_type: "One of credit_card, boleto, voucher, debit_card, not_defined."
+      payment_installments: Number of instalments chosen.
+      payment_value: Amount paid in R$. Includes freight, so it is NOT revenue.
+  order_reviews:
+    description: Customer satisfaction reviews. Most orders have one; a few have more.
+    columns:
+      review_id: Not unique on its own.
+      order_id: Join to orders.
+      review_score: Rating from 1 (worst) to 5 (best).
+      review_comment_title: Free text in Portuguese, usually empty.
+      review_comment_message: Free text in Portuguese, often empty.
+      review_creation_date: When the review survey was sent.
+      review_answer_timestamp: When the customer answered it.
+  customers:
+    description: One row per customer_id, which means one row per ORDER.
+    columns:
+      customer_id: Key used by orders. A new value is issued for every order.
+      customer_unique_id: The real person. Count distinct values of this to count people.
+      customer_zip_code_prefix: First five digits of the postcode.
+      customer_city: City name, lower case.
+      customer_state: Two-letter state code. Join to state_regions.state for the region.
+  products:
+    description: Product catalogue.
+    columns:
+      product_id: Primary key.
+      product_category_name: Category in Portuguese. NULL for 610 products.
+      product_name_lenght: Length of the name. The misspelling is in the source data.
+      product_description_lenght: Length of the description. The misspelling is in the source data.
+      product_photos_qty: Number of photos.
+      product_weight_g: Weight in grams.
+      product_length_cm: Length in cm.
+      product_height_cm: Height in cm.
+      product_width_cm: Width in cm.
+  sellers:
+    description: Marketplace sellers.
+    columns:
+      seller_id: Primary key.
+      seller_zip_code_prefix: First five digits of the postcode.
+      seller_city: City name.
+      seller_state: Two-letter state code of the seller. Different from the customer's state.
+  category_translation:
+    description: Portuguese to English product category names.
+    columns:
+      product_category_name: Portuguese name. Join to products.product_category_name.
+      product_category_name_english: English name. Use this when showing categories.
+  state_regions:
+    description: Maps each of the 27 Brazilian states to one of the 5 official regions.
+    columns:
+      state: Two-letter state code.
+      region: "One of North, Northeast, Central-West, Southeast, South."
+
+metrics:
+  revenue: >
+    SUM(order_items.price) over orders whose order_status is NOT IN ('canceled', 'unavailable').
+    Freight is excluded. Always state this definition in the answer when reporting revenue.
+  orders_count: >
+    In revenue contexts, COUNT(DISTINCT order_id) from order_items over the same non-canceled,
+    non-unavailable orders. For a plain "how many orders", count rows of orders.
+  average_order_value: revenue divided by orders_count.
+  delivery_days: >
+    Days from order_purchase_timestamp to order_delivered_customer_date for orders with
+    order_status = 'delivered' and a non-NULL delivery date. Compute it as
+    date_diff('second', start, end) / 86400.0 so that part-days are kept.
+  late_delivery: >
+    A delivered order is late when CAST(order_delivered_customer_date AS DATE) is after
+    CAST(order_estimated_delivery_date AS DATE).
+
+pitfalls:
+  - >
+    Never join order_items to order_payments directly and then SUM. Both have several rows
+    per order, so the join multiplies rows and inflates totals. Aggregate one side first.
+  - >
+    customers.customer_id is per order. To count people, or to find repeat buyers, use
+    COUNT(DISTINCT customer_unique_id).
+  - >
+    Joining order_reviews can duplicate orders that have several reviews. When a question is
+    about orders, aggregate reviews to one row per order first.
+  - >
+    Show English category names. Use LEFT JOIN category_translation, because two Portuguese
+    categories have no translation, and COALESCE to the Portuguese name.
+  - >
+    775 orders have no items, so they have no revenue. Join from order_items for revenue.
+  - >
+    Data coverage is September 2016 to August 2018. Volumes are tiny before January 2017, and
+    August 2018 tails off after the 22nd, so Q3 2018 is partial. Say so if it affects an answer.
+  - >
+    Use region for "region" questions and state for "state" questions. Quarters are calendar
+    quarters of order_purchase_timestamp.
+  - >
+    If a ranking depends on the measure, such as largest fall in percent versus in R$, report
+    both and say where they disagree.

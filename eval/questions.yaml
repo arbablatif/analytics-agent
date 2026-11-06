@@ -1,0 +1,383 @@
+# 30 evaluation questions. Each gold_sql result is independently re-derived in pandas from the
+# raw CSVs by eval/verify_gold.py, and `expected` holds the facts a correct answer must state.
+#
+# match: rows    every gold row must appear in one query result (extra rows/columns are fine)
+# match: values  every gold number must appear in some query result, in any shape. Used where
+#                wide and long layouts are both legitimate, such as quarter-over-quarter tables.
+# expected.entities  strings the answer must contain ("a|b" means either)
+# expected.numbers   figures the answer must state
+# expected.any_of    alternative rubrics, where a question has more than one valid reading
+#
+# "Revenue" follows the project definition: item price, excluding freight and excluding
+# canceled and unavailable orders.
+
+questions:
+  # ------------------------------------------------------------------ easy
+  - id: E01
+    tier: easy
+    question: How many orders are in the database in total?
+    match: rows
+    gold_sql: SELECT count(*) AS orders FROM orders
+    expected: {entities: [], numbers: [99441]}
+
+  - id: E02
+    tier: easy
+    question: How many unique customers, meaning real people, have placed an order?
+    match: rows
+    gold_sql: SELECT count(DISTINCT customer_unique_id) AS people FROM customers
+    expected: {entities: [], numbers: [96096]}
+
+  - id: E03
+    tier: easy
+    question: What is the total revenue across the whole dataset?
+    match: rows
+    gold_sql: |
+      SELECT sum(i.price) AS revenue
+      FROM order_items i JOIN orders o USING (order_id)
+      WHERE o.order_status NOT IN ('canceled', 'unavailable')
+    expected: {entities: [], numbers: [13494400.74]}
+
+  - id: E04
+    tier: easy
+    question: What is the average review score across all reviews?
+    match: rows
+    gold_sql: SELECT avg(review_score) AS avg_score FROM order_reviews
+    expected: {entities: [], numbers: [4.0864]}
+
+  - id: E05
+    tier: easy
+    question: Which state has the most sellers, and how many sellers does it have?
+    match: rows
+    gold_sql: |
+      SELECT seller_state, count(*) AS sellers
+      FROM sellers GROUP BY 1 ORDER BY 2 DESC LIMIT 1
+    expected: {entities: [SP|Sao Paulo|São Paulo], numbers: [1849]}
+
+  - id: E06
+    tier: easy
+    question: What percentage of all orders were canceled?
+    match: values
+    gold_sql: |
+      SELECT 100.0 * count(*) FILTER (WHERE order_status = 'canceled') / count(*) AS pct_canceled
+      FROM orders
+    expected: {entities: [], numbers: [0.6285]}
+
+  - id: E07
+    tier: easy
+    question: Which payment type is used most often, and how many payment records use it?
+    match: rows
+    gold_sql: |
+      SELECT payment_type, count(*) AS payments
+      FROM order_payments GROUP BY 1 ORDER BY 2 DESC LIMIT 1
+    expected: {entities: [credit_card], numbers: [76795]}
+
+  - id: E08
+    tier: easy
+    question: What is the average freight charge per order item?
+    match: rows
+    gold_sql: SELECT avg(freight_value) AS avg_freight FROM order_items
+    expected: {entities: [], numbers: [20.032]}
+
+  - id: E09
+    tier: easy
+    question: How many products have no category?
+    match: rows
+    gold_sql: SELECT count(*) AS products FROM products WHERE product_category_name IS NULL
+    expected: {entities: [], numbers: [610]}
+
+  - id: E10
+    tier: easy
+    question: How many orders were placed in 2017?
+    match: rows
+    gold_sql: SELECT count(*) AS orders FROM orders WHERE year(order_purchase_timestamp) = 2017
+    expected: {entities: [], numbers: [45101]}
+
+  # ---------------------------------------------------------------- medium
+  - id: M01
+    tier: medium
+    question: What is total revenue by region?
+    match: rows
+    gold_sql: |
+      SELECT r.region, sum(i.price) AS revenue
+      FROM order_items i JOIN orders o USING (order_id)
+      JOIN customers c USING (customer_id)
+      JOIN state_regions r ON r.state = c.customer_state
+      WHERE o.order_status NOT IN ('canceled', 'unavailable')
+      GROUP BY 1 ORDER BY 2 DESC
+    expected: {entities: [Southeast, South, Northeast, Central-West, North], numbers: [8822530.97, 1938021.12, 1538209.28, 861825.09, 333814.28]}
+
+  - id: M02
+    tier: medium
+    question: What are the top 5 product categories by revenue? Use English category names.
+    match: rows
+    gold_sql: |
+      SELECT coalesce(t.product_category_name_english, p.product_category_name) AS category,
+             sum(i.price) AS revenue
+      FROM order_items i JOIN orders o USING (order_id)
+      JOIN products p USING (product_id)
+      LEFT JOIN category_translation t ON t.product_category_name = p.product_category_name
+      WHERE o.order_status NOT IN ('canceled', 'unavailable')
+        AND p.product_category_name IS NOT NULL
+      GROUP BY 1 ORDER BY 2 DESC LIMIT 5
+    expected: {entities: [health_beauty, watches_gifts, bed_bath_table, sports_leisure, computers_accessories], numbers: [1255695.13, 904322.02]}
+
+  - id: M03
+    tier: medium
+    question: What was monthly revenue from January to August 2018?
+    match: rows
+    gold_sql: |
+      SELECT strftime(o.order_purchase_timestamp, '%Y-%m') AS month, sum(i.price) AS revenue
+      FROM order_items i JOIN orders o USING (order_id)
+      WHERE o.order_status NOT IN ('canceled', 'unavailable')
+        AND o.order_purchase_timestamp >= DATE '2018-01-01'
+        AND o.order_purchase_timestamp <  DATE '2018-09-01'
+      GROUP BY 1 ORDER BY 1
+    expected: {entities: [], numbers: [945456.29, 837895.43, 981051.06, 993592.98, 992871.75, 863265.53, 878044.27, 848860.10]}
+
+  - id: M04
+    tier: medium
+    question: What is the average delivery time in days, from purchase to customer delivery, for each region?
+    match: rows
+    gold_sql: |
+      SELECT r.region,
+             avg(date_diff('second', o.order_purchase_timestamp, o.order_delivered_customer_date) / 86400.0) AS avg_days
+      FROM orders o JOIN customers c USING (customer_id)
+      JOIN state_regions r ON r.state = c.customer_state
+      WHERE o.order_status = 'delivered' AND o.order_delivered_customer_date IS NOT NULL
+      GROUP BY 1 ORDER BY 2
+    expected: {entities: [Southeast, South, Central-West, Northeast, North], numbers: [10.7519, 14.0324, 15.0178, 20.005, 22.5923]}
+
+  - id: M05
+    tier: medium
+    question: Among customer states with at least 1,000 reviewed orders, which has the highest average review score?
+    match: rows
+    gold_sql: |
+      WITH per_order AS (
+        SELECT order_id, avg(review_score) AS score FROM order_reviews GROUP BY 1
+      )
+      SELECT c.customer_state, avg(p.score) AS avg_score
+      FROM per_order p JOIN orders o USING (order_id) JOIN customers c USING (customer_id)
+      GROUP BY 1 HAVING count(*) >= 1000 ORDER BY 2 DESC LIMIT 1
+    expected: {entities: [PR|Parana|Paraná], numbers: [4.1811]}
+
+  - id: M06
+    tier: medium
+    question: What percentage of delivered orders placed in 2018 arrived after the estimated delivery date?
+    match: values
+    gold_sql: |
+      SELECT 100.0 * count(*) FILTER (
+               WHERE CAST(order_delivered_customer_date AS DATE) > CAST(order_estimated_delivery_date AS DATE)
+             ) / count(*) AS pct_late
+      FROM orders
+      WHERE order_status = 'delivered' AND order_delivered_customer_date IS NOT NULL
+        AND year(order_purchase_timestamp) = 2018
+    expected: {entities: [], numbers: [7.7269]}
+
+  - id: M07
+    tier: medium
+    question: Who are the top 5 sellers by revenue? Give each seller's id and state.
+    match: rows
+    gold_sql: |
+      SELECT i.seller_id, s.seller_state, sum(i.price) AS revenue
+      FROM order_items i JOIN orders o USING (order_id) JOIN sellers s USING (seller_id)
+      WHERE o.order_status NOT IN ('canceled', 'unavailable')
+      GROUP BY 1, 2 ORDER BY 3 DESC LIMIT 5
+    expected: {entities: [4869f7a5dfa277a7dca6462dcf3b52b2, 53243585a1d6dc2643021fd1853d8905, SP, BA], numbers: [229237.63, 222776.05]}
+
+  - id: M08
+    tier: medium
+    question: What was the average order value in Q2 2018?
+    match: values
+    gold_sql: |
+      SELECT sum(i.price) / count(DISTINCT i.order_id) AS avg_order_value
+      FROM order_items i JOIN orders o USING (order_id)
+      WHERE o.order_status NOT IN ('canceled', 'unavailable')
+        AND o.order_purchase_timestamp >= DATE '2018-04-01'
+        AND o.order_purchase_timestamp <  DATE '2018-07-01'
+    expected: {entities: [], numbers: [143.2241]}
+
+  - id: M09
+    tier: medium
+    question: What percentage of customers, meaning real people, placed more than one order?
+    match: values
+    gold_sql: |
+      WITH people AS (
+        SELECT customer_unique_id, count(*) AS orders FROM customers GROUP BY 1
+      )
+      SELECT 100.0 * count(*) FILTER (WHERE orders > 1) / count(*) AS pct_repeat FROM people
+    expected: {entities: [], numbers: [3.1188]}
+
+  - id: M10
+    tier: medium
+    question: How did revenue last quarter compare with the quarter before?
+    match: values
+    gold_sql: |
+      SELECT sum(i.price) FILTER (WHERE o.order_purchase_timestamp < DATE '2018-04-01') AS revenue_q1,
+             sum(i.price) FILTER (WHERE o.order_purchase_timestamp >= DATE '2018-04-01') AS revenue_q2
+      FROM order_items i JOIN orders o USING (order_id)
+      WHERE o.order_status NOT IN ('canceled', 'unavailable')
+        AND o.order_purchase_timestamp >= DATE '2018-01-01'
+        AND o.order_purchase_timestamp <  DATE '2018-07-01'
+    expected: {entities: [], numbers: [2764402.78, 2849730.26]}
+
+  - id: M11
+    tier: medium
+    question: Among product categories with at least 500 reviewed orders, which has the lowest average review score?
+    match: rows
+    gold_sql: |
+      WITH per_order AS (
+        SELECT order_id, avg(review_score) AS score FROM order_reviews GROUP BY 1
+      ),
+      order_categories AS (
+        SELECT DISTINCT i.order_id,
+               coalesce(t.product_category_name_english, p.product_category_name) AS category
+        FROM order_items i JOIN products p USING (product_id)
+        LEFT JOIN category_translation t ON t.product_category_name = p.product_category_name
+        WHERE p.product_category_name IS NOT NULL
+      )
+      SELECT c.category, avg(s.score) AS avg_score
+      FROM order_categories c JOIN per_order s USING (order_id)
+      GROUP BY 1 HAVING count(*) >= 500 ORDER BY 2 LIMIT 1
+    expected: {entities: [office_furniture], numbers: [3.6164]}
+
+  # ------------------------------------------------------------------ hard
+  - id: H01
+    tier: hard
+    question: Which region's revenue fell most last quarter and why?
+    match: values
+    gold_sql: |
+      SELECT r.region, date_trunc('quarter', o.order_purchase_timestamp) AS quarter,
+             sum(i.price) AS revenue, count(DISTINCT i.order_id) AS orders
+      FROM order_items i JOIN orders o USING (order_id)
+      JOIN customers c USING (customer_id)
+      JOIN state_regions r ON r.state = c.customer_state
+      WHERE o.order_status NOT IN ('canceled', 'unavailable')
+        AND o.order_purchase_timestamp >= DATE '2018-01-01'
+        AND o.order_purchase_timestamp <  DATE '2018-07-01'
+        AND r.region IN ('North', 'Northeast')
+      GROUP BY 1, 2 ORDER BY 1, 2
+    expected:
+      any_of:
+        - {entities: [North], numbers: [14.2156, 373, 309]}
+        - {entities: [Northeast], numbers: [10673.16, 1938, 1743]}
+
+  - id: H02
+    tier: hard
+    question: >-
+      Among customer states with at least 300 delivered orders in both Q1 and Q2 2018, which state's
+      late-delivery rate fell the most from Q1 to Q2 2018?
+    match: values
+    gold_sql: |
+      WITH d AS (
+        SELECT c.customer_state AS state,
+               CASE WHEN o.order_purchase_timestamp < DATE '2018-04-01' THEN 'q1' ELSE 'q2' END AS q,
+               CAST(o.order_delivered_customer_date AS DATE) > CAST(o.order_estimated_delivery_date AS DATE) AS late
+        FROM orders o JOIN customers c USING (customer_id)
+        WHERE o.order_status = 'delivered' AND o.order_delivered_customer_date IS NOT NULL
+          AND o.order_purchase_timestamp >= DATE '2018-01-01'
+          AND o.order_purchase_timestamp <  DATE '2018-07-01'
+      ),
+      s AS (
+        SELECT state,
+               count(*) FILTER (WHERE q = 'q1') AS n1, count(*) FILTER (WHERE q = 'q2') AS n2,
+               100.0 * count(*) FILTER (WHERE q = 'q1' AND late) / count(*) FILTER (WHERE q = 'q1') AS late_q1,
+               100.0 * count(*) FILTER (WHERE q = 'q2' AND late) / count(*) FILTER (WHERE q = 'q2') AS late_q2
+        FROM d GROUP BY 1
+      )
+      SELECT state, late_q1, late_q2 FROM s
+      WHERE n1 >= 300 AND n2 >= 300 ORDER BY late_q2 - late_q1 LIMIT 1
+    expected: {entities: [RJ|Rio de Janeiro], numbers: [27.3043, 4.4635]}
+
+  - id: H03
+    tier: hard
+    question: How much lower is the average review score for orders delivered late than for orders delivered on time?
+    match: values
+    gold_sql: |
+      WITH per_order AS (
+        SELECT order_id, avg(review_score) AS score FROM order_reviews GROUP BY 1
+      )
+      SELECT CAST(o.order_delivered_customer_date AS DATE) > CAST(o.order_estimated_delivery_date AS DATE) AS late,
+             avg(p.score) AS avg_score
+      FROM orders o JOIN per_order p USING (order_id)
+      WHERE o.order_status = 'delivered' AND o.order_delivered_customer_date IS NOT NULL
+      GROUP BY 1 ORDER BY 1
+    expected: {entities: [], numbers: [4.2906, 2.2718]}
+
+  - id: H04
+    tier: hard
+    question: Which product category added the most revenue, in R$, from the second half of 2017 to the first half of 2018?
+    match: values
+    gold_sql: |
+      WITH c AS (
+        SELECT coalesce(t.product_category_name_english, p.product_category_name) AS category,
+               sum(i.price) FILTER (WHERE o.order_purchase_timestamp < DATE '2018-01-01') AS h2_2017,
+               sum(i.price) FILTER (WHERE o.order_purchase_timestamp >= DATE '2018-01-01') AS h1_2018
+        FROM order_items i JOIN orders o USING (order_id)
+        JOIN products p USING (product_id)
+        LEFT JOIN category_translation t ON t.product_category_name = p.product_category_name
+        WHERE o.order_status NOT IN ('canceled', 'unavailable')
+          AND p.product_category_name IS NOT NULL
+          AND o.order_purchase_timestamp >= DATE '2017-07-01'
+          AND o.order_purchase_timestamp <  DATE '2018-07-01'
+        GROUP BY 1
+      )
+      SELECT category, h2_2017, h1_2018 FROM c ORDER BY h1_2018 - h2_2017 DESC LIMIT 1
+    expected: {entities: [health_beauty], numbers: [318268.91, 544009.42]}
+
+  - id: H05
+    tier: hard
+    question: What are the top 3 product categories by revenue in each region? Use English category names.
+    match: rows
+    gold_sql: |
+      WITH c AS (
+        SELECT r.region, coalesce(t.product_category_name_english, p.product_category_name) AS category,
+               sum(i.price) AS revenue
+        FROM order_items i JOIN orders o USING (order_id)
+        JOIN customers cu USING (customer_id)
+        JOIN state_regions r ON r.state = cu.customer_state
+        JOIN products p USING (product_id)
+        LEFT JOIN category_translation t ON t.product_category_name = p.product_category_name
+        WHERE o.order_status NOT IN ('canceled', 'unavailable')
+          AND p.product_category_name IS NOT NULL
+        GROUP BY 1, 2
+      )
+      SELECT region, category, revenue FROM c
+      QUALIFY row_number() OVER (PARTITION BY region ORDER BY revenue DESC) <= 3
+      ORDER BY region, revenue DESC
+    expected: {entities: [Central-West, North, Northeast, South, Southeast, health_beauty, watches_gifts, sports_leisure, bed_bath_table], numbers: [783034.83, 155557.62, 42234.38]}
+
+  - id: H06
+    tier: hard
+    question: Why did revenue jump in November 2017 compared with October 2017?
+    match: values
+    gold_sql: |
+      SELECT strftime(o.order_purchase_timestamp, '%Y-%m') AS period,
+             sum(i.price) AS revenue, count(DISTINCT i.order_id) AS orders
+      FROM order_items i JOIN orders o USING (order_id)
+      WHERE o.order_status NOT IN ('canceled', 'unavailable')
+        AND o.order_purchase_timestamp >= DATE '2017-10-01'
+        AND o.order_purchase_timestamp <  DATE '2017-12-01'
+      GROUP BY 1
+      UNION ALL
+      SELECT '2017-11-24', sum(i.price), count(DISTINCT i.order_id)
+      FROM order_items i JOIN orders o USING (order_id)
+      WHERE o.order_status NOT IN ('canceled', 'unavailable')
+        AND CAST(o.order_purchase_timestamp AS DATE) = DATE '2017-11-24'
+      ORDER BY 1
+    expected: {entities: [2017-11-24|24 Nov|November 24|Nov 24|Black Friday], numbers: [660179.62, 1003862.14, 4547, 7421]}
+
+  # ----------------------------------------------------------- unanswerable
+  - id: U01
+    tier: unanswerable
+    question: What is our profit margin by product category?
+    unanswerable: true
+
+  - id: U02
+    tier: unanswerable
+    question: Which marketing channel brought in the most revenue last quarter?
+    unanswerable: true
+
+  - id: U03
+    tier: unanswerable
+    question: What will total revenue be in Q1 2019?
+    unanswerable: true

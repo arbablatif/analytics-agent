@@ -1,0 +1,16 @@
+# Python 3.12
+duckdb>=2.0
+sqlglot>=30.0
+pandas>=3.0
+pyyaml>=6.0
+python-dotenv>=1.0
+plotly>=7.0
+kaleido>=1.5
+reportlab>=5.0
+streamlit>=1.67
+scipy>=1.13
+pytest>=8.0
+# LLM providers (only the one you use is imported)
+google-genai>=3.0
+anthropic>=0.40
+openai>=1.50

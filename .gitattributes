@@ -1,0 +1,3 @@
+# Keep binary files byte-exact on every platform
+*.pdf binary
+*.png binary
